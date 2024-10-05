@@ -34,6 +34,16 @@ pub extern "C" fn Java_Encryptor_encrypt(
 }
 
 #[no_mangle]
+pub extern "C" fn Java_com_example_helloworld_Encryptor_encrypt(
+    env: JNIEnv,
+    class: JClass,
+    msg: JString,
+    public_key: JString,
+) -> jstring {
+    Java_Encryptor_encrypt(env, class, msg, public_key)
+}
+
+#[no_mangle]
 pub extern "C" fn Java_Encryptor_decrypt(
     env: JNIEnv,          // JNIEnv pointer, always the first argument in JNI
     _class: JClass,       // Class or object reference (unused in this case)
@@ -58,4 +68,14 @@ pub extern "C" fn Java_Encryptor_decrypt(
         .new_string(decrypted)
         .expect("Couldn't create output string!");
     output.into_inner() // Return a Java string (jstring)
+}
+
+#[no_mangle]
+pub extern "C" fn Java_com_example_helloworld_Encryptor_decrypt(
+    env: JNIEnv,
+    class: JClass,
+    cipher: JString,
+    private_key: JString,
+) -> jstring {
+    Java_Encryptor_decrypt(env, class, cipher, private_key)
 }
