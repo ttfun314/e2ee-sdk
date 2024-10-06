@@ -7,10 +7,6 @@ RUST_PROJECT_DIR = .
 # Define the output directory for the Java library
 JAVA_LIBS_DIR = java/libs
 
-# Default target
-all: test build copy run-java
-
-
 # Run tests for the Rust project
 test:
 	cargo test --manifest-path $(RUST_PROJECT_DIR)/Cargo.toml
@@ -19,14 +15,29 @@ test:
 build:
 	cargo build --release --manifest-path $(RUST_PROJECT_DIR)/Cargo.toml
 
-# Copy the compiled library to the Java libs directory
-copy:
-	cp $(RUST_PROJECT_DIR)/target/release/$(LIB_NAME) $(JAVA_LIBS_DIR)/
-
-run-java:
-	cd java && javac Encryptor.java && java -Djava.library.path=libs Encryptor
 # Clean the Rust project
 clean:
 	cargo clean --manifest-path $(RUST_PROJECT_DIR)/Cargo.toml
 
-.PHONY: all build copy clean
+## Java targets
+# Copy the compiled library to the Java libs directory
+copy-java:
+	cp $(RUST_PROJECT_DIR)/target/release/$(LIB_NAME) $(JAVA_LIBS_DIR)/
+
+# Run the Java program
+run-java:
+	cd java && javac Encryptor.java && java -Djava.library.path=libs Encryptor
+
+## Android targets
+build-android:
+	cargo ndk -t x86_64 build --release 
+
+copy-android:
+	cp $(RUST_PROJECT_DIR)/target/x86_64-linux-android/release/libe2ee_sdk.so android/mylibrary/src/main/jniLibs/x86_64/
+
+build-lib-android:
+	cd android && ./gradlew :mylibrary:assembleRelease
+
+# Default target
+all-java: test build copy-java run-java
+all-android: test build-android copy-android build-lib-android
