@@ -1,5 +1,5 @@
 use clap::{Arg, Command};
-use e2ee_sdk::encyptor::{encrypt, generate_keys};
+use e2ee_sdk::encyptor::{decrypt, encrypt, generate_keys};
 
 use std::fs::File;
 use std::io::{Read, Write};
@@ -57,6 +57,24 @@ fn main() {
                         .required(true),
                 ),
         )
+        .subcommand(
+            Command::new("decrypt")
+                .about("Decrypts a message")
+                .arg(
+                    Arg::new("cipher_text")
+                        .short('c')
+                        .long("cipher")
+                        .help("The ciphertext to decrypt")
+                        .required(true),
+                )
+                .arg(
+                    Arg::new("private_key_file")
+                        .short('k')
+                        .long("private_key_file")
+                        .help("The private key file to use for decryption")
+                        .required(true),
+                ),
+        )
         .get_matches();
 
     if let Some(matches) = matches.subcommand_matches("generate_keys") {
@@ -106,5 +124,21 @@ fn main() {
 
         let encrypted_message = encrypt(message, &public_key);
         println!("{}", encrypted_message);
+    } else if let Some(matches) = matches.subcommand_matches("decrypt") {
+        let cipher_text = matches
+            .get_one::<String>("cipher_text")
+            .expect("cipher_text is required");
+        let private_key_file = matches
+            .get_one::<String>("private_key_file")
+            .expect("private_key_file is required");
+
+        let mut private_key = String::new();
+        File::open(private_key_file)
+            .expect("Unable to open private key file")
+            .read_to_string(&mut private_key)
+            .expect("Unable to read private key file");
+
+        let decrypted_message = decrypt(cipher_text, &private_key);
+        println!("Decrypted message: {}", decrypted_message);
     }
 }
