@@ -7,7 +7,7 @@ use std::io::{Read, Write};
 fn main() {
     let matches = Command::new("Key Generator and Encryptor")
         .version("1.0")
-        .author("Your Name <your.email@example.com>")
+        .author("ttfun314")
         .about("Generates RSA key pairs and encrypts messages")
         .subcommand(
             Command::new("generate_keys")
@@ -105,6 +105,6 @@ fn main() {
             .expect("Unable to read public key file");
 
         let encrypted_message = encrypt(message, &public_key);
-        println!("Encrypted message: {}", encrypted_message);
+        println!("{}", encrypted_message);
     }
 }
