@@ -1,6 +1,6 @@
 use rsa::{
-    pkcs1::DecodeRsaPrivateKey, pkcs8::DecodePublicKey, Pkcs1v15Encrypt, RsaPrivateKey,
-    RsaPublicKey,
+    pkcs8::{DecodePrivateKey, DecodePublicKey},
+    Pkcs1v15Encrypt, RsaPrivateKey, RsaPublicKey,
 };
 pub fn encrypt(msg: &str, public_key: &str) -> String {
     let public_key =
@@ -15,7 +15,7 @@ pub fn encrypt(msg: &str, public_key: &str) -> String {
 
 pub fn decrypt(cipher: &str, private_key_raw: &str) -> String {
     let private_key =
-        RsaPrivateKey::from_pkcs1_pem(private_key_raw).expect("failed to parse private key");
+        RsaPrivateKey::from_pkcs8_pem(private_key_raw).expect("failed to parse private key");
 
     let enc_data = hex::decode(cipher).expect("failed to decode hex");
     let dec_data = private_key
