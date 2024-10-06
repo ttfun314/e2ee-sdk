@@ -2,7 +2,7 @@ pub mod encyptor;
 
 use jni::{
     objects::{JClass, JString},
-    sys::jstring,
+    sys::{jobjectArray, jstring},
     JNIEnv,
 };
 
@@ -78,4 +78,47 @@ pub extern "C" fn Java_com_example_helloworld_Encryptor_decrypt(
     private_key: JString,
 ) -> jstring {
     Java_Encryptor_decrypt(env, class, cipher, private_key)
+}
+
+#[repr(C)]
+pub struct RSAKeyPair {
+    pub private_key: jstring,
+    pub public_key: jstring,
+}
+
+#[no_mangle]
+pub extern "C" fn Java_Encryptor_generateKeys(
+    env: JNIEnv,
+    _class: JClass,
+    key_size: i32,
+) -> jobjectArray {
+    // Convert Java strings (JString) to Rust strings
+    let key_size = key_size as usize;
+    // Call Rust key generation logic
+    let (private_key, public_key) = encyptor::generate_keys(key_size as usize);
+    // Convert Rust strings to JNI JString
+    let private_key_jstring = env
+        .new_string(private_key)
+        .expect("Couldn't create private key string!");
+    let public_key_jstring = env
+        .new_string(public_key)
+        .expect("Couldn't create public key string!");
+
+    // Create a new Java String array with a length of 2
+    let string_array = env
+        .new_object_array(
+            2,
+            env.find_class("java/lang/String").unwrap(),
+            env.new_string("").unwrap(),
+        )
+        .unwrap();
+
+    // Set the public and private key strings into the array
+    env.set_object_array_element(string_array, 0, private_key_jstring)
+        .unwrap();
+    env.set_object_array_element(string_array, 1, public_key_jstring)
+        .unwrap();
+
+    // Return the array
+    string_array
 }
