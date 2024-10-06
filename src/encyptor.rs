@@ -3,6 +3,7 @@ use rsa::{
     Pkcs1v15Encrypt, RsaPrivateKey, RsaPublicKey,
 };
 
+// Generate RSA keys of the given size
 pub fn generate_keys(key_size: usize) -> (String, String) {
     let bits = key_size;
     let private_key =
@@ -17,6 +18,7 @@ pub fn generate_keys(key_size: usize) -> (String, String) {
     (private_key_pem.to_string(), public_key_pem)
 }
 
+// Encrypt a message using the given public key
 pub fn encrypt(msg: &str, public_key: &str) -> String {
     let public_key =
         RsaPublicKey::from_public_key_pem(&public_key).expect("failed to parse public key");
@@ -28,6 +30,7 @@ pub fn encrypt(msg: &str, public_key: &str) -> String {
     hex::encode(enc_data)
 }
 
+// Decrypt a cipher using the given private key
 pub fn decrypt(cipher: &str, private_key_raw: &str) -> String {
     let private_key =
         RsaPrivateKey::from_pkcs8_pem(private_key_raw).expect("failed to parse private key");

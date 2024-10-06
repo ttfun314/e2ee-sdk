@@ -14,7 +14,6 @@ fn main() {
                 .about("Generates RSA key pairs")
                 .arg(
                     Arg::new("key_size")
-                        .short('s')
                         .long("size")
                         .help("Size of the key in bits")
                         .value_name("KEY_SIZE")
@@ -22,7 +21,6 @@ fn main() {
                 )
                 .arg(
                     Arg::new("private_key")
-                        .short('p')
                         .long("private")
                         .help("File to save the private key")
                         .value_name("PRIVATE_KEY_FILE")
@@ -30,7 +28,6 @@ fn main() {
                 )
                 .arg(
                     Arg::new("public_key")
-                        .short('u')
                         .long("public")
                         .help("File to save the public key")
                         .value_name("PUBLIC_KEY_FILE")
