@@ -39,5 +39,5 @@ build-lib-android:
 	cd android && ./gradlew :mylibrary:assembleRelease
 
 # Default target
-all-java: test build copy-java run-java
-all-android: test build-android copy-android build-lib-android
+test-java: test build copy-java run-java
+android: test build-android copy-android build-lib-android

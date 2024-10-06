@@ -1,6 +1,6 @@
-E2EE SDK contains 3 parts:
+# E2EE SDK contains 3 parts:
 # 1. End-to-End Encryption (E2EE)
-The first part containing 3 core functions
+The first part contains 3 core functions
 The algorithm using here is RSA from rsa crate 
 ```
 // Generate a pair of asymmetric keys (public and private).
@@ -13,7 +13,7 @@ pub fn encrypt(msg: &str, public_key: &str) -> String {}
 pub fn decrypt(cipher: &str, private_key_raw: &str) -> String {}
 ```
 
-The first part come with an CLI to test these functions
+The first part comes with an CLI to test these functions
 
 How to build it: `cargo build --release`
 ```
@@ -45,4 +45,40 @@ SUBCOMMANDS:
         -c, --cipher <CIPHER_TEXT>       The ciphertext to decrypt
         -k, --private_key_file <PRIVATE_KEY_FILE>
                                          The private key file to use for decryption
+```
+
+To run unit test for 3 core functions, run `make test`
+
+# 2. SDK Development
+The Rust interface exposed to Java code is
+```
+class Encryptor {
+    static {
+        System.loadLibrary("e2ee_sdk");
+    }
+
+    public native String encrypt(String msg, String publicKey);
+
+    public native String decrypt(String cipher, String privateKey);
+    public native String[] generateKeys(int keySize); 
+}
+```
+
+To build the android library, run `make android`
+The script would create a .aar file in /android/mylibrary/build/outputs/aar/mylibrary-release.aar
+The interface of android library is
+
+  <ul>
+    <li>init(): Initializes the cryptographic keys if they are not already present.</li>
+    <li>getPublicKey: Retrieves the stored public key.</li>
+    <li>encrypt(String, String): Encrypts a message using the provided public key.</li>
+    <li>decrypt(String): Decrypts a cipher text using the stored private key.</li>
+  </ul>
+
+```
+ CryptoSDK cryptoSDK = new CryptoSDK(context);
+ cryptoSDK.init();
+ String publicKey = cryptoSDK.getPublicKey();
+ String encryptedMessage = cryptoSDK.encrypt("Hello, World!", publicKey);
+ String decryptedMessage = cryptoSDK.decrypt(encryptedMessage);
 ```

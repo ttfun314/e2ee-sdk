@@ -24,6 +24,7 @@ public class CryptoSDK {
         encryptor = new Encryptor();
     }
 
+    // Generate key pair if not exists, save keys to shared preferences where they are not accessible to other apps or users
     public void init() {
         if (getPublicKey() != null) {
             return;
@@ -46,10 +47,12 @@ public class CryptoSDK {
         return sharedPreferences.getString("public_key", null);
     }
 
+    // Encrypt message with the provided public key
     public String encrypt(String msg, String publicKey) {
         return encryptor.encrypt(msg, publicKey);
     }
 
+    // Decrypt message with saved private key
     public String decrypt(String cipher) {
         String privateKey = getPrivateKey();
         return encryptor.decrypt(cipher, privateKey);
