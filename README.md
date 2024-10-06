@@ -69,7 +69,7 @@ The script would create a .aar file in /android/mylibrary/build/outputs/aar/myli
 The interface of android library is
 
   <ul>
-    <li>init(): Initializes the cryptographic keys if they are not already present.</li>
+    <li>init(): Initializes the cryptographic keys and save them to encrypted shared preferences if they are not already present.</li>
     <li>getPublicKey: Retrieves the stored public key.</li>
     <li>encrypt(String, String): Encrypts a message using the provided public key.</li>
     <li>decrypt(String): Decrypts a cipher text using the stored private key.</li>
@@ -82,3 +82,43 @@ The interface of android library is
  String encryptedMessage = cryptoSDK.encrypt("Hello, World!", publicKey);
  String decryptedMessage = cryptoSDK.decrypt(encryptedMessage);
 ```
+
+Steps to use the android lib in your project:
+- Copy the .aar file to your project at /app/libs (create libs directory if not exist)
+- Add following snippet to your app/build.gradle.kts or app/build.gradle depending on your project
+
+```
+    implementation(files("libs/mylibrary-release.aar"))
+    implementation("androidx.security:security-crypto:1.1.0-alpha04")
+```
+- `import com.x.e2ee.CryptoSDK` to start using the sdk
+
+Example testcase using the sdk
+
+```
+@RunWith(AndroidJUnit4::class)
+class EncryptorTest {
+
+    @Test
+    fun testEncrypt() {
+        val context = ApplicationProvider.getApplicationContext<Context>()
+        val cryptoSDK = CryptoSDK(context)
+        cryptoSDK.init()
+        val message = "Hello, Android!"
+        val encryptedMessage = cryptoSDK.encrypt(message, cryptoSDK.publicKey)
+
+        // Assert that the encrypted message is not null and not equal to the original message
+        assertNotNull(encryptedMessage)
+        assertNotEquals(message, encryptedMessage)
+
+        Log.d("EncryptorTest", "Encrypted message: $encryptedMessage")
+
+        val decryptedMessage = cryptoSDK.decrypt(encryptedMessage)
+        Log.d("EncryptorTest", "Decrypted message: $decryptedMessage")
+        assertEquals(message, decryptedMessage)
+    }
+
+}
+```
+
+Link to the example project [e2ee-sdk-android-example](https://github.com/ttfun314/e2ee-sdk-android-example)

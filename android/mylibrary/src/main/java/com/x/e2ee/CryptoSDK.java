@@ -24,7 +24,7 @@ public class CryptoSDK {
         encryptor = new Encryptor();
     }
 
-    // Generate key pair if not exists, save keys to shared preferences where they are not accessible to other apps or users
+    // Generate key pair if not exists, save keys to encrypted shared preferences where they are not accessible to other apps or users
     public void init() {
         if (getPublicKey() != null) {
             return;
