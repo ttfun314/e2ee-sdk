@@ -34,7 +34,7 @@ pub extern "C" fn Java_Encryptor_encrypt(
 }
 
 #[no_mangle]
-pub extern "C" fn Java_com_example_helloworld_Encryptor_encrypt(
+pub extern "C" fn Java_com_x_e2ee_Encryptor_encrypt(
     env: JNIEnv,
     class: JClass,
     msg: JString,
@@ -71,7 +71,7 @@ pub extern "C" fn Java_Encryptor_decrypt(
 }
 
 #[no_mangle]
-pub extern "C" fn Java_com_example_helloworld_Encryptor_decrypt(
+pub extern "C" fn Java_com_x_e2ee_Encryptor_decrypt(
     env: JNIEnv,
     class: JClass,
     cipher: JString,
@@ -121,4 +121,13 @@ pub extern "C" fn Java_Encryptor_generateKeys(
 
     // Return the array
     string_array
+}
+
+#[no_mangle]
+pub extern "C" fn Java_com_x_e2ee_Encryptor_generateKeys(
+    env: JNIEnv,
+    class: JClass,
+    key_size: i32,
+) -> jobjectArray {
+    Java_Encryptor_generateKeys(env, class, key_size)
 }
