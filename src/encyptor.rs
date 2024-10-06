@@ -1,7 +1,22 @@
 use rsa::{
-    pkcs8::{DecodePrivateKey, DecodePublicKey},
+    pkcs8::{DecodePrivateKey, DecodePublicKey, EncodePrivateKey, EncodePublicKey},
     Pkcs1v15Encrypt, RsaPrivateKey, RsaPublicKey,
 };
+
+pub fn generate_keys(key_size: usize) -> (String, String) {
+    let bits = key_size;
+    let private_key =
+        RsaPrivateKey::new(&mut rand::thread_rng(), bits).expect("failed to generate private key");
+    let public_key = RsaPublicKey::from(&private_key);
+    let private_key_pem = private_key
+        .to_pkcs8_pem(rsa::pkcs8::LineEnding::LF)
+        .expect("failed to convert private key to pem");
+    let public_key_pem = public_key
+        .to_public_key_pem(rsa::pkcs8::LineEnding::LF)
+        .expect("failed to convert public key to pem");
+    (private_key_pem.to_string(), public_key_pem)
+}
+
 pub fn encrypt(msg: &str, public_key: &str) -> String {
     let public_key =
         RsaPublicKey::from_public_key_pem(&public_key).expect("failed to parse public key");
