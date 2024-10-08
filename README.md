@@ -96,7 +96,7 @@ Steps to use the android lib in your project:
 
 Example testcase using the sdk
 
-```
+``` Kotlin
 @RunWith(AndroidJUnit4::class)
 class EncryptorTest {
 
