@@ -38,6 +38,11 @@ copy-android:
 build-lib-android:
 	cd android && ./gradlew :mylibrary:assembleRelease
 
+# iOS targets
+build-ios:
+	cargo build --target x86_64-apple-ios --release
+
 # Default target
 test-java: test build copy-java run-java
 android: test build-android copy-android build-lib-android
+ios: test build-ios
