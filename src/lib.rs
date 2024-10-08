@@ -1,5 +1,8 @@
 pub mod encyptor;
 
+use std::ffi::{CStr, CString};
+use std::os::raw::c_char;
+
 use jni::{
     objects::{JClass, JString},
     sys::{jobjectArray, jstring},
@@ -80,12 +83,6 @@ pub extern "C" fn Java_com_x_e2ee_Encryptor_decrypt(
     Java_Encryptor_decrypt(env, class, cipher, private_key)
 }
 
-#[repr(C)]
-pub struct RSAKeyPair {
-    pub private_key: jstring,
-    pub public_key: jstring,
-}
-
 #[no_mangle]
 pub extern "C" fn Java_Encryptor_generateKeys(
     env: JNIEnv,
@@ -130,4 +127,67 @@ pub extern "C" fn Java_com_x_e2ee_Encryptor_generateKeys(
     key_size: i32,
 ) -> jobjectArray {
     Java_Encryptor_generateKeys(env, class, key_size)
+}
+
+// FFI functions
+
+#[repr(C)]
+pub struct RSAKeyPair {
+    pub private_key: *const c_char,
+    pub public_key: *const c_char,
+}
+
+#[no_mangle]
+pub extern "C" fn generate_keys_ffi(key_size: usize) -> RSAKeyPair {
+    let (private_key, public_key) = encyptor::generate_keys(key_size);
+
+    let private_key_c = CString::new(private_key).unwrap();
+    let public_key_c = CString::new(public_key).unwrap();
+    RSAKeyPair {
+        private_key: private_key_c.into_raw(),
+        public_key: public_key_c.into_raw(),
+    }
+}
+
+#[no_mangle]
+pub extern "C" fn encrypt_ffi(msg: *const c_char, public_key: *const c_char) -> *const c_char {
+    let msg = unsafe {
+        assert!(!msg.is_null());
+        CStr::from_ptr(msg).to_str().unwrap()
+    };
+
+    let public_key = unsafe {
+        assert!(!public_key.is_null());
+        CStr::from_ptr(public_key).to_str().unwrap()
+    };
+
+    let encrypted_msg = encyptor::encrypt(msg, public_key);
+    CString::new(encrypted_msg).unwrap().into_raw()
+}
+
+#[no_mangle]
+pub extern "C" fn decrypt_ffi(cipher: *const c_char, private_key: *const c_char) -> *const c_char {
+    let cipher = unsafe {
+        assert!(!cipher.is_null());
+        CStr::from_ptr(cipher).to_str().unwrap()
+    };
+
+    let private_key = unsafe {
+        assert!(!private_key.is_null());
+        CStr::from_ptr(private_key).to_str().unwrap()
+    };
+
+    let decrypted_msg = encyptor::decrypt(cipher, private_key);
+    CString::new(decrypted_msg).unwrap().into_raw()
+}
+
+// A helper function to free the C string when done to avoid memory leaks.
+#[no_mangle]
+pub extern "C" fn free_c_string(s: *mut c_char) {
+    if s.is_null() {
+        return;
+    }
+    unsafe {
+        let _ = CString::from_raw(s); // Automatically deallocates the memory
+    }
 }
