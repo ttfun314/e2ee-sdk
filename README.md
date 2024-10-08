@@ -2,7 +2,7 @@
 # 1. End-to-End Encryption (E2EE)
 The first part contains 3 core functions
 The algorithm using here is RSA from rsa crate 
-```
+``` Rust
 // Generate a pair of asymmetric keys (public and private).
 pub fn generate_keys(key_size: usize) -> (String, String) {}
 
@@ -50,8 +50,9 @@ SUBCOMMANDS:
 To run unit test for 3 core functions, run `make test`
 
 # 2. SDK Development
+## Android
 The Rust interface exposed to Java code is
-```
+``` Java
 class Encryptor {
     static {
         System.loadLibrary("e2ee_sdk");
@@ -75,7 +76,7 @@ The interface of android library is
     <li>decrypt(String): Decrypts a cipher text using the stored private key.</li>
   </ul>
 
-```
+``` Java
  CryptoSDK cryptoSDK = new CryptoSDK(context);
  cryptoSDK.init();
  String publicKey = cryptoSDK.getPublicKey();
@@ -121,4 +122,28 @@ class EncryptorTest {
 }
 ```
 
-Link to the example project [e2ee-sdk-android-example](https://github.com/ttfun314/e2ee-sdk-android-example)
+Link to the example project [e2ee-sdk-android-example](https://github.com/ttfun314/e2ee-sdk-android-example/blob/main/app/src/androidTest/java/com/example/myapplicationusingnewlib/EncryptorTest.kt#L18)
+
+## iOS (Using swift)
+How to build target: `make ios`
+Steps to use the ios lib in your project:
+- Import file from /target/x86_64-apple-ios/release/libe2ee_sdk.a and file e2ee_sdk.h to iOS project
+- Create a Bridging-Header.m file 
+- Config build path to include those file during the build
+- `import Foundation` and start using the lib
+
+``` Swift
+func encryptMessage(msg: String, publicKey: String) -> String? {
+        let cMsg = msg.cString(using: .utf8)
+        let cPublicKey = publicKey.cString(using: .utf8)
+
+        if let encryptedCStr = encrypt_ffi(cMsg, cPublicKey) {
+            let encryptedMessage = String(cString: encryptedCStr)
+            free_c_string(UnsafeMutablePointer(mutating: encryptedCStr)) // Free the C string memory
+            return encryptedMessage
+        }
+        return nil
+}
+```
+
+Link to example project [e2ee-sdk-ios-example](https://github.com/ttfun314/e2ee-sdk-ios-example/blob/main/Hello%20WorldTests/Hello_WorldTests.swift#L47)
